@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -64,6 +65,7 @@ public class SimpleService extends Service {
         startForeground(123, notification.build());
 
         ExecutorService singleT = Executors.newSingleThreadExecutor();
+        Handler mHandler = new Handler();
 
         singleT.execute(new Runnable() {
             @Override
@@ -77,8 +79,8 @@ public class SimpleService extends Service {
                         stopSelf();
                         break;
                     }else {
-                        notification.setContentText(String.valueOf(i));
-                        NotificationManagerCompat.from(getApplicationContext()).notify(123, notification.build());
+                        mHandler.post(new UpdateTask());
+
                     }
 
                     try{
@@ -89,6 +91,22 @@ public class SimpleService extends Service {
                 }
             }
         });
+
+        class UpdateTask implements Runnable{
+            private String aa = "0";
+            private void update(String a){
+                aa = a;
+            }
+            UpdateTask(){
+
+            }
+
+            @Override
+            public void run() {
+                notification.setContentText(aa);
+                NotificationManagerCompat.from(getApplicationContext()).notify(123, notification.build());
+            }
+        }
         return START_NOT_STICKY;
     }
 
@@ -96,5 +114,13 @@ public class SimpleService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.e("----","onDestroy cleared");
+    }
+
+
+    private class UpdateTask implements Runnable {
+        @Override
+        public void run() {
+
+        }
     }
 }

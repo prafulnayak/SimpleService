@@ -23,6 +23,9 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class DownLoadWorker extends Worker {
     private static final String KEY_INPUT_URL = "KEY_INPUT_URL";
     private static final String KEY_OUTPUT_FILE_NAME = "KEY_OUTPUT_FILE_NAME";
+    private static final Integer NOTIFICATION_ID = 123;
+
+
 
     private NotificationManager notificationManager;
 
@@ -37,11 +40,11 @@ public class DownLoadWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Data inputData = getInputData();
-        String inputUrl = inputData.getString(KEY_INPUT_URL);
-        String outputFile = inputData.getString(KEY_OUTPUT_FILE_NAME);
+//        Data inputData = getInputData();
+//        String inputUrl = inputData.getString(KEY_INPUT_URL);
+//        String outputFile = inputData.getString(KEY_OUTPUT_FILE_NAME);
         // Mark the Worker as important
-        String progress = "Starting Service";
+
         setForegroundAsync(createForegroundInfo());
         doWorkInBackground();
         return Result.success();
@@ -50,7 +53,13 @@ public class DownLoadWorker extends Worker {
     private void doWorkInBackground() {
 
         for(int i =0;i<10000;i++){
-            Log.i("Tag",""+String.valueOf(i));
+            Log.i("----Tag",""+String.valueOf(i));
+            if(isStopped()){
+                Log.i("----------Tag","stopped");
+                cancelNotification();
+                break;
+            }
+
             updateNotification(String.valueOf(i));
             try {
                 Thread.sleep(1000);
@@ -60,11 +69,17 @@ public class DownLoadWorker extends Worker {
         }
     }
 
+    private void cancelNotification() {
+        NotificationManager notificationManager = (NotificationManager)
+                getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.cancel(NOTIFICATION_ID);
+    }
+
     private void updateNotification(String s) {
-        String id = getApplicationContext().getString(R.string.notification_channel_id);
-        NotificationCompat.Builder notification = getNotificationBuilder(getApplicationContext(),id);
+        String channelId = getApplicationContext().getString(R.string.notification_channel_id);
+        NotificationCompat.Builder notification = getNotificationBuilder(getApplicationContext(),channelId);
         notification.setContentText(s);
-        NotificationManagerCompat.from(getApplicationContext()).notify(1,notification.build());
+        NotificationManagerCompat.from(getApplicationContext()).notify(NOTIFICATION_ID,notification.build());
     }
 
     @NonNull
@@ -85,7 +100,7 @@ public class DownLoadWorker extends Worker {
 
         NotificationCompat.Builder notification = getNotificationBuilder(getApplicationContext(),id);
 
-        return new ForegroundInfo(1, notification.build());
+        return new ForegroundInfo(NOTIFICATION_ID, notification.build());
     }
 
     private NotificationCompat.Builder getNotificationBuilder(Context applicationContext, String id) {

@@ -35,16 +35,22 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.stop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopService();
+//                stopService();
+                stopS();
             }
         });
+    }
+
+    private void stopS() {
+        WorkManager workManager = WorkManager.getInstance(getApplicationContext());
+        workManager.cancelAllWork();
     }
 
     private void statS() {
         WorkManager workManager = WorkManager.getInstance(getApplicationContext());
         Constraints.Builder constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.NOT_REQUIRED);
 
-        WorkRequest downloadSyncRequest = new OneTimeWorkRequest.Builder(DownLoadWorker.class)
+        OneTimeWorkRequest downloadSyncRequest = new OneTimeWorkRequest.Builder(DownLoadWorker.class)
                 .setConstraints(constraints.build())
                 .setBackoffCriteria(
                         BackoffPolicy.LINEAR,
@@ -52,11 +58,9 @@ public class MainActivity extends AppCompatActivity {
                         TimeUnit.MICROSECONDS)
                 .build();
 
-        workManager.enqueue(downloadSyncRequest);
+//        workManager.enqueueUniqueWork(downloadSyncRequest);
 
-//        workManager.enqueueUniqueWork(UNIQUE_PULL_DATA_FROM_SERVER,
-//                ExistingWorkPolicy.REPLACE,
-//                downloadSyncRequest);
+        workManager.enqueueUniqueWork(UNIQUE_PULL_DATA_FROM_SERVER,ExistingWorkPolicy.REPLACE,downloadSyncRequest);
     }
 
     public void startService(){

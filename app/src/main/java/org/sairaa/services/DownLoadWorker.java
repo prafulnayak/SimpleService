@@ -106,21 +106,23 @@ public class DownLoadWorker extends Worker {
     private NotificationCompat.Builder getNotificationBuilder(Context applicationContext, String id) {
 
         Intent notificationIntent = new Intent(applicationContext, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(applicationContext,
-                0,notificationIntent,0);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(applicationContext,
+//                0,notificationIntent,0);
+        PendingIntent intent = WorkManager.getInstance(applicationContext)
+                .createCancelPendingIntent(getId());
 
         return new NotificationCompat.Builder(applicationContext, id)
                 .setContentTitle("Test Service")
                 .setTicker("title")
                 .setSmallIcon(R.drawable.ic_launcher_background)
-                .setContentIntent(pendingIntent)
+//                .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
-                .setAutoCancel(false);
+                .setAutoCancel(false)
 
                 // Add the cancel action to the notification which can
                 // be used to cancel the worker
-//                .addAction(android.R.drawable.ic_delete, "cancel", intent);
+                .addAction(android.R.drawable.ic_delete, "cancel", intent);
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
